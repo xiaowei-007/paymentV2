@@ -1,0 +1,45 @@
+{
+  "type": "library",
+  "name": "xiaowei/payment",
+  "description": "WeChat and Alipay Payment SDK",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "小韦",
+      "email": "302929314@qq.com"
+    }
+  ],
+  "keywords": [
+    "AliPay",
+    "WeMini",
+    "WeChat",
+    "WeChatPay",
+    "WeChatDeveloper"
+  ],
+  "require": {
+    "php": ">=5.4",
+    "ext-xml": "*",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "ext-bcmath": "*",
+    "ext-libxml": "*",
+    "ext-openssl": "*",
+    "ext-mbstring": "*",
+    "ext-simplexml": "*"
+  },
+  "autoload": {
+    "files": [
+      "helper.php"
+    ],
+    "classmap": [
+      "We.php"
+    ],
+    "psr-4": {
+      "WePay\\": "WePay",
+      "WeChat\\": "WeChat",
+      "WeMini\\": "WeMini",
+      "AliPay\\": "AliPay",
+      "WePayV3\\": "WePayV3"
+    }
+  }
+}

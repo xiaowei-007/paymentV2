@@ -1,0 +1,18 @@
+{
+    "name": "xiaowei/payment-v2",
+    "description": "微信、支付宝支付php SDK",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Xiaowei\\PaymentV2\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "小韦",
+            "email": "302929314@qq.com"
+        }
+    ],
+    "require": {}
+}

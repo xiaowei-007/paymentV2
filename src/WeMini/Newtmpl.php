@@ -142,4 +142,28 @@ class Newtmpl extends BasicWeChat
         $url = 'https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=ACCESS_TOKEN';
         return $this->callPostApi($url, $data, true);
     }
+    /**
+     * 获取设备票据
+     * @param array $data 设备票据请求参数
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function getSnTicket(array $data)
+    {
+        $url = 'https://api.weixin.qq.com/wxa/getsnticket?access_token=ACCESS_TOKEN';
+        return $this->callPostApi($url, $data, true);
+    }
+    /**
+     * 发送硬件设备订阅消息
+     * @param array $data 硬件设备订阅消息数据
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function sendHardwareDeviceMessage(array $data)
+    {
+        $url = 'https://api.weixin.qq.com/cgi-bin/message/device/subscribe/send?access_token=ACCESS_TOKEN';
+        return $this->callPostApi($url, $data, true);
+    }
 }

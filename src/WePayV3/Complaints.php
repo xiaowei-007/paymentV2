@@ -16,8 +16,8 @@ class Complaints extends BasicWePay
      * 查询投诉列表
      * @param int $offset 分页开始位置
      * @param int $limit 分页大小
-     * @param String $begin_date 开始日期
-     * @param String $end_date 结束日期
+     * @param string $begin_date 开始日期
+     * @param string $end_date 结束日期
      * @return array|string
      * @throws \WeChat\Exceptions\InvalidResponseException
      */

@@ -1,7 +1,7 @@
 <?php
 
 // +----------------------------------------------------------------------
-// | WeChatDeveloper
+// | PaymentV2
 // +----------------------------------------------------------------------
 // | 版权所有 2014~2025 ThinkAdmin [ thinkadmin.top ]
 // +----------------------------------------------------------------------
@@ -14,7 +14,7 @@
 // | github 代码仓库：https://github.com/zoujingli/WeChatDeveloper
 // +----------------------------------------------------------------------
 
-namespace WePayV3\Contracts;
+namespace WePayPartner\Contracts;
 
 use WeChat\Contracts\Tools;
 use WeChat\Exceptions\InvalidArgumentException;
@@ -23,9 +23,9 @@ use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Cert;
 
 /**
- * 微信支付基础类
+ * 微信支付服务商基础类
  * Class BasicWePay
- * @package WePayV3
+ * @package WePayPartner
  */
 abstract class BasicWePay
 {
@@ -52,27 +52,29 @@ abstract class BasicWePay
      * @var array
      */
     protected $config = [
-        'appid'           => '', // 微信绑定APPID，需配置
-        'mch_id'          => '', // 微信商户编号，需要配置
+        'sp_appid'        => '', // 服务商应用ID
+        'sp_mchid'        => '', // 服务商户号
+        'appid'           => '', // 子商户应用ID
+        'mch_id'          => '', // 子商户号
         'mch_v3_key'      => '', // 微信商户密钥，需要配置
         'cert_serial'     => '', // 商户证书序号，无需配置
         'cert_public'     => '', // 商户公钥内容，需要配置
-        'cert_private'    => '', // 商户密钥内容，需要配置
+        'cert_private'    => '', // 商密钥内容，需要配置
         'cert_package'    => [], // 平台证书或支付证书配置
         'mp_cert_serial'  => '', // 平台证书序号，无需配置 ( 指定平台证书或支付公钥 )
         'mp_cert_content' => '', // 平台证书内容，无需配置 ( 指定平台证书或支付公钥 )
     ];
 
     /**
-     * BasicWePayV3 constructor.
-     * @param array $options [mch_id, mch_v3_key, cert_public, cert_private]
+     * BasicWePayPartner constructor.
+     * @param array $options [sp_mchid, mch_v3_key, cert_public, cert_private]
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @throws \WeChat\Exceptions\LocalCacheException
      */
     public function __construct(array $options = [])
     {
-        if (empty($options['mch_id'])) {
-            throw new InvalidArgumentException("Missing Config -- [mch_id]");
+        if (empty($options['sp_mchid'])) {
+            throw new InvalidArgumentException("Missing Config -- [sp_mchid]");
         }
         if (empty($options['mch_v3_key'])) {
             throw new InvalidArgumentException("Missing Config -- [mch_v3_key]");
@@ -100,8 +102,10 @@ abstract class BasicWePay
             }
         }
 
+        $this->config['sp_appid'] = isset($options['sp_appid']) ? $options['sp_appid'] : '';
+        $this->config['sp_mchid'] = $options['sp_mchid'];
         $this->config['appid'] = isset($options['appid']) ? $options['appid'] : '';
-        $this->config['mch_id'] = $options['mch_id'];
+        $this->config['mch_id'] = isset($options['mch_id']) ? $options['mch_id'] : '';
         $this->config['mch_v3_key'] = $options['mch_v3_key'];
         $this->config['cert_public'] = $options['cert_public'];
         $this->config['cert_private'] = $options['cert_private'];
@@ -134,20 +138,6 @@ abstract class BasicWePay
             $this->config['mp_cert_serial'] = $options['mp_cert_serial'];
             $this->config['mp_cert_content'] = $options['mp_cert_content'];
         }
-
-        // 服务商参数支持
-//        if (!empty($options['sp_appid'])) {
-//            $this->config['sp_appid'] = $options['sp_appid'];
-//        }
-//        if (!empty($options['sp_mchid'])) {
-//            $this->config['sp_mchid'] = $options['sp_mchid'];
-//        }
-//        if (!empty($options['sub_appid'])) {
-//            $this->config['sub_appid'] = $options['sub_appid'];
-//        }
-//        if (!empty($options['sub_mch_id'])) {
-//            $this->config['sub_mch_id'] = $options['sub_mch_id'];
-//        }
     }
 
     /**
@@ -181,7 +171,7 @@ abstract class BasicWePay
 
         // 生成数据签名TOKEN
         $token = sprintf('mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"',
-            $this->config['mch_id'], $nonce, $time, $this->config['cert_serial'], $this->signBuild($signstr)
+            $this->config['sp_mchid'], $nonce, $time, $this->config['cert_serial'], $this->signBuild($signstr)
         );
         $location = (preg_match('|^https?://|', $pathinfo) ? '' : $this->base) . $pathinfo;
         list($header, $content) = $this->_doRequestCurl($method, $location, [
@@ -241,7 +231,7 @@ abstract class BasicWePay
         $sign = $this->signBuild($signstr);
         // 生成数据签名TOKEN
         $token = sprintf('mchid="%s",nonce_str="%s",timestamp="%d",serial_no="%s",signature="%s"',
-            $this->config['mch_id'], $nonce, $time, $this->config['cert_serial'], $sign
+            $this->config['sp_mchid'], $nonce, $time, $this->config['cert_serial'], $sign
         );
         $location = (preg_match('|^https?://|', $pathinfo) ? '' : $this->base) . $pathinfo;
         $boundary = mt_rand(100000000000000000, 999999999999999999);
@@ -364,10 +354,10 @@ abstract class BasicWePay
      */
     protected function _getCert($serial = '')
     {
-        $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
+        $certs = $this->tmpFile("{$this->config['sp_mchid']}_certs");
         if (empty($certs) || empty($certs[$serial]['serial']) || empty($certs[$serial]['content'])) {
             Cert::instance($this->config)->download();
-            $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
+            $certs = $this->tmpFile("{$this->config['sp_mchid']}_certs");
         }
         foreach ($certs as $cert) {
             if (!empty($cert['serial']) && !empty($cert['content']) && $cert['expire'] > time()) {
@@ -397,13 +387,13 @@ abstract class BasicWePay
      */
     protected function _autoCert()
     {
-        $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
+        $certs = $this->tmpFile("{$this->config['sp_mchid']}_certs");
         if (is_array($certs)) foreach ($certs as $k => $v) {
             if ($v['expire'] < time()) unset($certs[$k]);
         }
         if (empty($certs)) {
             Cert::instance($this->config)->download();
-            $certs = $this->tmpFile("{$this->config['mch_id']}_certs");
+            $certs = $this->tmpFile("{$this->config['sp_mchid']}_certs");
         }
         if (empty($certs) || !is_array($certs)) {
             throw new InvalidResponseException("读取平台证书失败！");

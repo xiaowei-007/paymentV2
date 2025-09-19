@@ -69,6 +69,15 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WePay\Transfers WePayTransfers($options = []) static 微信商户打款到零钱
  * @method \WePay\TransfersBank WePayTransfersBank($options = []) static 微信商户打款到银行卡
  * @method \WePay\ProfitSharing WePayProfitSharing($options = []) static 微信分账
+ *
+ * ----- WePayPartner -----
+ * @method \WePayPartner\Order WePayPartnerOrder($options = []) static 微信服务商订单支付
+ * @method \WePayPartner\Refund WePayPartnerRefund($options = []) static 微信服务商退款
+ * @method \WePayPartner\ProfitSharing WePayPartnerProfitSharing($options = []) static 微信服务商分账
+ * @method \WePayPartner\Ecommerce WePayPartnerEcommerce($options = []) static 微信服务商特约商户进件
+ * @method \WePayPartner\Parking WePayPartnerParking($options = []) static 微信服务商支付分停车服务
+ * @method \WePayPartner\Transfers WePayPartnerTransfers($options = []) static 微信服务商转账到零钱
+ * @method \WePayPartner\PayScore WePayPartnerPayScore($options = []) static 微信服务商支付分
  */
 class We
 {
@@ -115,6 +124,8 @@ class We
             $class = 'WeMini\\' . substr($name, 6);
         } elseif (substr($name, 0, 6) === 'AliPay') {
             $class = 'AliPay\\' . substr($name, 6);
+        } elseif (substr($name, 0, 11) === 'WePayPartner') {
+            $class = 'WePayPartner\\' . substr($name, 11);
         } elseif (substr($name, 0, 7) === 'WePayV3') {
             $class = 'WePayV3\\' . substr($name, 7);
         } elseif (substr($name, 0, 5) === 'WePay') {

@@ -15,6 +15,8 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \AliPay\Transfer AliPayTransfer($options) static 支付宝转账到账户
  * @method \AliPay\Wap AliPayWap($options) static 支付宝手机网站支付
  * @method \AliPay\Web AliPayWeb($options) static 支付宝网站支付
+ * @method \AliPay\ZhimaCreditPePromiseOrder AliPayZhimaCreditPePromiseOrder($options) static 芝麻先享V3接口
+ * @method \AliPay\ZhimaCreditEpSceneAgreement AliPayZhimaCreditEpSceneAgreement($options) static 芝麻免押V3接口
  *
  * ----- WeChat -----
  * @method \WeChat\Card WeChatCard($options = []) static 微信卡券管理

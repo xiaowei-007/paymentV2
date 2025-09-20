@@ -34,6 +34,8 @@
 | Transfer.php      | AliPay\Transfer     | 支付宝转账        | 支付宝支付 | \We::AliPayTransfer()     |
 | Wap.php           | AliPay\Wap          | 支付宝Wap支付     | 支付宝支付 | \We::AliPayWap()          |
 | Web.php           | AliPay\Web          | 支付宝Web支付     | 支付宝支付 | \We::AliPayWeb()          |
+| ZhimaCreditPePromiseOrder.php | AliPay\ZhimaCreditPePromiseOrder | 支付宝芝麻先享V3接口 | 支付宝支付 | \We::AliPayZhimaCreditPePromiseOrder() |
+| ZhimaCreditEpSceneAgreement.php | AliPay\ZhimaCreditEpSceneAgreement | 支付宝芝麻免押V3接口 | 支付宝支付 | \We::AliPayZhimaCreditEpSceneAgreement() |
 | Card.php          | WeChat\Card         | 微信卡券接口支持     | 认证服务号 | \We::WeChatCard()         |
 | Custom.php        | WeChat\Custom       | 微信客服消息接口支持   | 认证服务号 | \We::WeChatCustom()       |
 | Media.php         | WeChat\Media        | 微信媒体素材接口支持   | 认证服务号 | \We::WeChatMedia()        |
@@ -380,6 +382,60 @@ try {
     // 异常处理
     echo $e->getMessage();
 
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+支付宝芝麻先享V3接口
+----
+
+```php
+try {
+    // 实例化芝麻先享对象
+    $zhima = We::AliPayZhimaCreditPePromiseOrder($config);
+    // $zhima = new \AliPay\ZhimaCreditPePromiseOrder($config);
+    
+    // 创建芝麻先享订单
+    $result = $zhima->create([
+        'out_order_no' => time(), // 商户订单号
+        'product_code' => 'w1010100100000000000', // 产品码
+        'subject' => '测试商品', // 商品标题
+        'amount' => '0.01', // 订单总金额
+        'seller_id' => '2088102146222222', // 卖家支付宝用户ID
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+支付宝芝麻免押V3接口
+----
+
+```php
+try {
+    // 实例化芝麻免押对象
+    $zhima = We::AliPayZhimaCreditEpSceneAgreement($config);
+    // $zhima = new \AliPay\ZhimaCreditEpSceneAgreement($config);
+    
+    // 创建芝麻免押订单
+    $result = $zhima->create([
+        'credit_order_no' => time(), // 信用订单号
+        'product_code' => 'w1010100100000000000', // 产品码
+        'subject' => '测试免押商品', // 商品标题
+        'amount' => '0.01', // 订单总金额
+        'seller_id' => '2088102146222222', // 卖家支付宝用户ID
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
 }
 ```
 

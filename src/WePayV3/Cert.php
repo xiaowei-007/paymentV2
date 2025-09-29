@@ -30,8 +30,19 @@ class Cert extends BasicWePay
         try {
             $certs = [];
             $result = $this->doRequest('GET', '/v3/certificates');
+            
+            // 检查返回结果是否包含data键
+            if (!isset($result['data']) || !is_array($result['data'])) {
+                throw new InvalidResponseException('证书下载接口返回数据格式错误，缺少data字段');
+            }
+            
             $decrypt = new DecryptAes($this->config['mch_v3_key']);
             foreach ($result['data'] as $vo) {
+                // 检查必要字段是否存在
+                if (!isset($vo['serial_no']) || !isset($vo['expire_time']) || !isset($vo['encrypt_certificate'])) {
+                    continue; // 跳过不完整的证书数据
+                }
+                
                 $certs[$vo['serial_no']] = [
                     'expire'  => strtotime($vo['expire_time']),
                     'serial'  => $vo['serial_no'],

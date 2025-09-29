@@ -296,9 +296,16 @@ abstract class BasicWePay
             curl_setopt($curl, CURLOPT_POSTFIELDS, $options['data']);
         }
         // CURL头信息设置
+        $defaultHeaders = [
+            'Accept: application/json',
+            'User-Agent: WePayV3/1.0'
+        ];
         if (!empty($options['header'])) {
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $options['header']);
+            $headers = array_merge($defaultHeaders, $options['header']);
+        } else {
+            $headers = $defaultHeaders;
         }
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($curl, CURLOPT_URL, $location);
         curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_TIMEOUT, 60);

@@ -1,0 +1,57 @@
+{
+  "name": "xiaowei007/payment-v2",
+  "description": "微信、支付宝支付 PHP SDK",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "小韦",
+      "email": "1011072151@qq.com"
+    }
+  ],
+  "keywords": [
+    "AliPay",
+    "WeMini",
+    "WeChat",
+    "WeChatPay",
+    "WeChatDeveloper",
+    "Payment",
+    "SDK"
+  ],
+  "require": {
+    "php": ">=7.0",
+    "ext-xml": "*",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "ext-bcmath": "*",
+    "ext-libxml": "*",
+    "ext-openssl": "*",
+    "ext-mbstring": "*",
+    "ext-simplexml": "*"
+  },
+  "autoload": {
+    "files": [
+      "src/helper.php"
+    ],
+    "classmap": [
+      "src/We.php"
+    ],
+    "psr-4": {
+      "WePay\\": "src/WePay/",
+      "WeChat\\": "src/WeChat/",
+      "WeMini\\": "src/WeMini/",
+      "AliPay\\": "src/AliPay/",
+      "WePayPartner\\": "src/WePayPartner/",
+      "WePayV3\\": "src/WePayV3/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PaymentV2\\Tests\\": "src/_test/"
+    }
+  },
+  "support": {
+    "issues": "https://github.com/xiaowei-007/paymentV2/issues",
+    "source": "https://github.com/xiaowei-007/paymentV2"
+  }
+} 

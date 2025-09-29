@@ -1,0 +1,676 @@
+# Payment for PHP
+
+* 运行最底要求 PHP 版本 7.0 , 建议在 PHP8 上运行以获取最佳性能；
+* 微信的部分接口需要缓存数据在本地，因此配置目录并需要对目录有写权限；
+* 微信商户已经支持 v2 和 v3 接口，未加入的接口可以使用通用方式调用。
+
+功能描述
+----
+
+* 微信小程序，服务端接口支持
+* 微信认证服务号，服务端接口支持
+* 微信支付（账单、卡券、红包、退款、转账、App支付、JSAPI支付、Web支付、扫码支付等）
+* 微信服务商支付（JSAPI、App、H5、Native、小程序支付、退款、转账等）
+* 支付宝支付（账单、转账、App支付、刷卡支付、扫码支付、Web支付、Wap支付等）
+
+基于官方接口封装，在做微信开发前，必需先阅读微信官方文档。
+
+* 微信官方文档：https://mp.weixin.qq.com/wiki
+* 商户支付文档：https://pay.weixin.qq.com/wiki/doc/api/index.html
+* 服务商支付文档：https://pay.weixin.qq.com/doc/v3/partner/4012069852
+
+
+* Github 仓库地址：https://github.com/xiaowei-007/paymentV2.git
+
+文件说明（后续会根据官方文档增加文件）
+----
+
+| 文件名               | 类名                  | 描述           | 类型    | 加载 ①                      |
+|-------------------|---------------------|--------------|-------|---------------------------|
+| App.php           | AliPay\App          | 支付宝App支付     | 支付宝支付 | \We::AliPayApp()          |
+| Bill.php          | AliPay\Bill         | 支付宝账单下载      | 支付宝支付 | \We::AliPayBill()         |
+| Pos.php           | AliPay\Pos          | 支付宝刷卡支付      | 支付宝支付 | \We::AliPayPos()          |
+| Scan.php          | AliPay\Scan         | 支付宝扫码支付      | 支付宝支付 | \We::AliPayScan()         |
+| Transfer.php      | AliPay\Transfer     | 支付宝转账        | 支付宝支付 | \We::AliPayTransfer()     |
+| Wap.php           | AliPay\Wap          | 支付宝Wap支付     | 支付宝支付 | \We::AliPayWap()          |
+| Web.php           | AliPay\Web          | 支付宝Web支付     | 支付宝支付 | \We::AliPayWeb()          |
+| ZhimaCreditPePromiseOrder.php | AliPay\ZhimaCreditPePromiseOrder | 支付宝芝麻先享V3接口 | 支付宝支付 | \We::AliPayZhimaCreditPePromiseOrder() |
+| ZhimaCreditEpSceneAgreement.php | AliPay\ZhimaCreditEpSceneAgreement | 支付宝芝麻免押V3接口 | 支付宝支付 | \We::AliPayZhimaCreditEpSceneAgreement() |
+| Card.php          | WeChat\Card         | 微信卡券接口支持     | 认证服务号 | \We::WeChatCard()         |
+| Custom.php        | WeChat\Custom       | 微信客服消息接口支持   | 认证服务号 | \We::WeChatCustom()       |
+| Media.php         | WeChat\Media        | 微信媒体素材接口支持   | 认证服务号 | \We::WeChatMedia()        |
+| Oauth.php         | WeChat\Oauth        | 微信网页授权消息类接口  | 认证服务号 | \We::WeChatOauth()        |
+| Pay.php           | WeChat\Pay          | 微信支付类接口      | 认证服务号 | \We::WeChatPay()          |
+| Product.php       | WeChat\Product      | 微信商店类接口      | 认证服务号 | \We::WeChatProduct()      |
+| Qrcode.php        | WeChat\Qrcode       | 微信二维码接口支持    | 认证服务号 | \We::WeChatQrcode()       |
+| Receive.php       | WeChat\Receive      | 微信推送事件消息处理支持 | 认证服务号 | \We::WeChatReceive()      |
+| Scan.php          | WeChat\Scan         | 微信扫一扫接口支持    | 认证服务号 | \We::WeChatScan()         |
+| Script.php        | WeChat\Script       | 微信前端JSSDK支持  | 认证服务号 | \We::WeChatScript()       |
+| Shake.php         | WeChat\Shake        | 微信蓝牙设备揺一揺接口  | 认证服务号 | \We::WeChatShake()        |
+| Tags.php          | WeChat\Tags         | 微信粉丝标签接口支持   | 认证服务号 | \We::WeChatTags()         |
+| Template.php      | WeChat\Template     | 微信模板消息接口支持   | 认证服务号 | \We::WeChatTemplate()     |
+| User.php          | WeChat\User         | 微信粉丝管理接口支持   | 认证服务号 | \We::WeChatCard()         |
+| Wifi.php          | WeChat\Wifi         | 微信门店WIFI管理支持 | 认证服务号 | \We::WeChatWifi()         |
+| Draft.php         | WeChat\Draft        | 微信草稿箱        | 认证服务号 | \We::WeChatDraft()        |
+| Freepublish.php   | WeChat\Freepublish  | 微信发布能力       | 认证服务号 | \We::WeChatFreepublish()  |
+| Bill.php          | WePay\Bill          | 微信商户账单及评论    | 微信支付  | \We::WePayBill()          |
+| Coupon.php        | WePay\Coupon        | 微信商户代金券      | 微信支付  | \We::WePayCoupon()        |
+| Order.php         | WePay\Order         | 微信商户订单       | 微信支付  | \We::WePayOrder()         |
+| Redpack.php       | WePay\Redpack       | 微信红包支持       | 微信支付  | \We::WePayRedpack()       |
+| Refund.php        | WePay\Refund        | 微信商户退款       | 微信支付  | \We::WePayRefund()        |
+| Transfers.php     | WePay\Transfers     | 微信商户打款到零钱    | 微信支付  | \We::WePayTransfers()     |
+| TransfersBank.php | WePay\TransfersBank | 微信商户打款到银行卡   | 微信支付  | \We::WePayTransfersBank() |
+| Order.php         | WePayV3\Order       | 微信商户V3订单支付    | 微信支付V3 | \We::WePayV3Order()      |
+| Refund.php        | WePayV3\Refund      | 微信商户V3退款       | 微信支付V3 | \We::WePayV3Refund()     |
+| ProfitSharing.php | WePayV3\ProfitSharing | 微信商户V3分账      | 微信支付V3 | \We::WePayV3ProfitSharing() |
+| PayScore.php      | WePayV3\PayScore    | 微信支付分          | 微信支付V3 | \We::WePayV3PayScore()   |
+| Parking.php       | WePayV3\Parking     | 微信支付分停车服务     | 微信支付V3 | \We::WePayV3Parking()    |
+| Crypt.php         | WeMini\Crypt        | 微信小程序数据加密处理  | 微信小程序 | \We::WeMiniCrypt()        |
+| Plugs.php         | WeMini\Plugs        | 微信小程序插件管理    | 微信小程序 | \We::WeMiniPlugs()        |
+| Poi.php           | WeMini\Poi          | 微信小程序地址管理    | 微信小程序 | \We::WeMiniPoi()          |
+| Qrcode.php        | WeMini\Qrcode       | 微信小程序二维码管理   | 微信小程序 | \We::WeMiniCrypt()        |
+| Template.php      | WeMini\Template     | 微信小程序模板消息支持  | 微信小程序 | \We::WeMiniTemplate()     |
+| Total.php         | WeMini\Total        | 微信小程序数据接口    | 微信小程序 | \We::WeMiniTotal()        |
+| Order.php         | WePayPartner\Order  | 微信服务商订单支付    | 微信服务商 | \We::WePayPartnerOrder()  |
+| Refund.php        | WePayPartner\Refund | 微信服务商退款      | 微信服务商 | \We::WePayPartnerRefund() |
+| ProfitSharing.php | WePayPartner\ProfitSharing | 微信服务商分账 | 微信服务商 | \We::WePayPartnerProfitSharing() |
+| Ecommerce.php     | WePayPartner\Ecommerce | 微信服务商特约商户进件 | 微信服务商 | \We::WePayPartnerEcommerce() |
+| Parking.php       | WePayPartner\Parking | 微信服务商支付分停车服务 | 微信服务商 | \We::WePayPartnerParking() |
+| Transfers.php     | WePayPartner\Transfers | 微信服务商转账到零钱 | 微信服务商 | \We::WePayPartnerTransfers() |
+| PayScore.php      | WePayPartner\PayScore | 微信服务商支付分    | 微信服务商 | \We::WePayPartnerPayScore()  |
+| Subject.php       | WePayPartner\Subject  | 微信服务商商户开户意愿确认 | 微信服务商 | \We::WePayPartnerSubject()   |
+| Violation.php     | WePayPartner\Violation| 微信服务商商户平台处置通知 | 微信服务商 | \We::WePayPartnerViolation() |
+| Bill.php          | WePayPartner\Bill     | 微信服务商下载账单         | 微信服务商 | \We::WePayPartnerBill()      |
+
+安装使用
+----
+1.1 通过 Composer 来管理安装
+
+```shell
+# 首次安装 线上版本（稳定）
+composer require xiaowei007/payment-v2
+
+```
+
+2.1 接口实例所需参数
+
+```php
+
+// =====================================================
+// 配置缓存处理函数（适配不同环境）
+// -----------------------------------------------------
+// - 数据缓存（set|get|del）：可存储到本地或 Redis
+// - 文件缓存（put）：仅支持本地存储，并返回可读的文件路径
+// - 若未设置自定义缓存处理，默认存储在 cache_path 目录
+// =====================================================
+// \WeChat\Contracts\Tools::$cache_callable = [
+//    'set' => function ($name, $value, $expired = 360) {
+//        var_dump(func_get_args());
+//        return $value;
+//    },
+//    'get' => function ($name) {
+//        var_dump(func_get_args());
+//        return $value;
+//    },
+//    'del' => function ($name) {
+//        var_dump(func_get_args());
+//        return true;
+//    },
+//    'put' => function ($name) {
+//        var_dump(func_get_args());
+//        return $filePath;
+//    },
+// ];
+
+return [
+    // 公众号 APPID（可选）
+    'appid'        => 'wx3760xxxxxxxxxxxx',
+    
+    // 微信商户号（必填）
+    'mch_id'       => '15293xxxxxx',
+    
+    // 微信商户 V3 接口密钥（必填）
+    'mch_v3_key'   => '98b7fxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 商户证书序列号（可选）：用于请求签名
+    'cert_serial'  => '49055D67B2XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    
+    // 微信商户证书公钥（必填）：可填写证书内容或文件路径，仅用于提取序列号
+    'cert_public'  => $certPublic,
+    
+    // 微信商户证书私钥（必填）：可填写证书内容或文件路径，用于请求数据签名
+    'cert_private' => $certPrivate,
+
+    // 自定义证书包：支持平台证书或支付公钥（可填写文件路径或证书内容）
+    'cert_package' => [
+        'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' => $certPayment
+    ],
+
+    // 微信平台证书或支付证书序列号（可选）
+    // 'mp_cert_serial'  => 'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 微信平台证书或支付证书内容（可选）
+    // 'mp_cert_content' => $certPayment,
+
+    // 运行时文件缓存路径（可选）
+    'cache_path'   => ''
+];
+```
+
+2.2 微信服务商支付参数
+
+```php
+return [
+    // 服务商应用ID
+    'sp_appid' => 'wx3760xxxxxxxxxxxx',
+    
+    // 服务商户号
+    'sp_mchid' => '15293xxxxxx',
+    
+    // 子商户应用ID（可选）
+    'appid' => 'wx3760xxxxxxxxxxxx',
+    
+    // 子商户号（可选）
+    'mch_id' => '15293xxxxxx',
+    
+    // 微信商户 V3 接口密钥（必填）
+    'mch_v3_key' => '98b7fxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 商户证书序列号（可选）：用于请求签名
+    'cert_serial' => '49055D67B2XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    
+    // 微信商户证书公钥（必填）：可填写证书内容或文件路径，仅用于提取序列号
+    'cert_public' => $certPublic,
+    
+    // 微信商户证书私钥（必填）：可填写证书内容或文件路径，用于请求数据签名
+    'cert_private' => $certPrivate,
+
+    // 自定义证书包：支持平台证书或支付公钥（可填写文件路径或证书内容）
+    'cert_package' => [
+        'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' => $certPayment
+    ],
+
+    // 微信平台证书或支付证书序列号（可选）
+    // 'mp_cert_serial' => 'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 微信平台证书或支付证书内容（可选）
+    // 'mp_cert_content' => $certPayment,
+
+    // 运行时文件缓存路径（可选）
+    'cache_path' => ''
+];
+```
+
+3.1 实例指定接口
+
+```php
+try {
+
+    // 实例对应的接口对象
+    $user = new \WeChat\User($config);
+    
+    // 调用接口对象方法
+    $list = $user->getUserList();
+    
+    // 处理返回的结果
+    echo '<pre>';
+    var_export($list);
+    
+} catch (Exception $e) {
+
+    // 出错啦，处理下吧
+    echo $e->getMessage() . PHP_EOL;
+    
+}
+```
+
+微信支付
+---
+
+```php
+  // 创建接口实例
+  $wechat = new \WeChat\Pay($config);
+  
+  // 组装参数，可以参考官方商户文档
+  $options = [
+      'body'             => '测试商品',
+      'out_trade_no'     => time(),
+      'total_fee'        => '1',
+      'openid'           => 'o38gpszoJoC9oJYz3UHHf6bEp0Lo',
+      'trade_type'       => 'JSAPI',
+      'notify_url'       => 'http://a.com/text.html',
+      'spbill_create_ip' => '127.0.0.1',
+  ];
+    
+try {
+
+    // 生成预支付码
+    $result = $wechat->createOrder($options);
+    
+    // 创建JSAPI参数签名
+    $options = $wechat->createParamsForJsApi($result['prepay_id']);
+    
+    // @todo 把 $options 传到前端用js发起支付就可以了
+    
+} catch (Exception $e) {
+
+    // 出错啦，处理下吧
+    echo $e->getMessage() . PHP_EOL;
+    
+}
+```
+
+微信服务商支付
+---
+
+```php
+  // 创建接口实例
+  $wechat = \We::WePayPartnerOrder($config);
+  // $wechat = new \WePayPartner\Order($config);
+  
+  // 组装参数，可以参考官方商户文档
+  $options = [
+      'sp_appid' => $config['sp_appid'],
+      'sp_mchid' => $config['sp_mchid'],
+      'sub_appid' => $config['appid'],
+      'sub_mchid' => $config['mch_id'],
+      'description' => '测试商品',
+      'out_trade_no' => time(),
+      'notify_url' => 'http://a.com/text.html',
+      'amount' => [
+          'total' => 1,
+          'currency' => 'CNY'
+      ],
+      'payer' => [
+          'sp_openid' => 'o38gpszoJoC9oJYz3UHHf6bEp0Lo'
+      ]
+  ];
+    
+try {
+
+    // 生成预支付码
+    $result = $wechat->create(\WePayPartner\Order::WXPAY_JSAPI, $options);
+    
+    // @todo 把 $result 传到前端用js发起支付就可以了
+    
+} catch (Exception $e) {
+
+    // 出错啦，处理下吧
+    echo $e->getMessage() . PHP_EOL;
+    
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+支付宝支付
+----
+
+* 支付参数配置（可用沙箱模式）
+
+```php
+$config = [
+    // 沙箱模式
+    'debug'            => true,
+    // 签名类型 ( RSA|RSA2 )
+    'sign_type'        => 'RSA2',
+    // 应用ID
+    'appid'            => '2021000122667306',
+    // 应用私钥内容 ( 需1行填写，特别注意：这里的应用私钥通常由支付宝密钥管理工具生成 )
+    'private_key'      => 'MIIEowIBAAKCAQEAn...',
+    // 公钥模式，支付宝公钥内容 ( 需1行填写，特别注意：这里不是应用公钥而是支付宝公钥，通常是上传应用公钥换取支付宝公钥，在网页可以复制 )
+    'public_key'       => '',
+    // 证书模式，应用公钥证书路径 ( 新版资金类接口转 app_cert_sn，如文件 appCertPublicKey.crt )
+    'app_cert_path'    => __DIR__ . '/alipay/appPublicCert.crt', // 'app_cert' => '证书内容',
+    // 证书模式，支付宝根证书路径 ( 新版资金类接口转 alipay_root_cert_sn，如文件 alipayRootCert.crt )
+    'alipay_root_path' => __DIR__ . '/alipay/alipayRootCert.crt', // 'root_cert' => '证书内容',
+    // 证书模式，支付宝公钥证书路径 ( 未填写 public_key 时启用此参数，如文件 alipayPublicCert.crt )
+    'alipay_cert_path' => __DIR__ . '/alipay/alipayPublicCert.crt', // 'public_key' => '证书内容'
+    // 支付成功通知地址
+    'notify_url'       => '',
+    // 网页支付回跳地址
+    'return_url'       => '',
+];
+```
+
+* 支付宝发起PC网站支付
+
+```php
+// 参考公共参数  https://docs.open.alipay.com/203/107090/
+$config['notify_url'] = 'http://pay.thinkadmin.top/test/alipay-notify.php';
+$config['return_url'] = 'http://pay.thinkadmin.top/test/alipay-success.php';
+
+try {
+    
+    // 实例支付对象
+    $pay = We::AliPayWeb($config);
+    // $pay = new \AliPay\Web($config);
+    
+    // 参考链接：https://docs.open.alipay.com/api_1/alipay.trade.page.pay
+    $result = $pay->apply([
+        'out_trade_no' => time(), // 商户订单号
+        'total_amount' => '1',    // 支付金额
+        'subject'      => '支付订单描述', // 支付订单描述
+    ]);
+    
+    echo $result; // 直接输出HTML（提交表单跳转)
+    
+} catch (Exception $e) {
+
+    // 异常处理
+    echo $e->getMessage();
+    
+}
+```
+
+* 支付宝发起手机网站支付
+
+```php
+// 参考公共参数  https://docs.open.alipay.com/203/107090/
+$config['notify_url'] = 'http://pay.thinkadmin.top/test/alipay-notify.php';
+$config['return_url'] = 'http://pay.thinkadmin.top/test/alipay-success.php';
+
+try {
+
+    // 实例支付对象
+    $pay = We::AliPayWap($config);
+    // $pay = new \AliPay\Wap($config);
+
+    // 参考链接：https://docs.open.alipay.com/api_1/alipay.trade.wap.pay
+    $result = $pay->apply([
+        'out_trade_no' => time(), // 商户订单号
+        'total_amount' => '1',    // 支付金额
+        'subject'      => '支付订单描述', // 支付订单描述
+    ]);
+
+    echo $result; // 直接输出HTML（提交表单跳转)
+
+} catch (Exception $e) {
+
+    // 异常处理
+    echo $e->getMessage();
+
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+支付宝芝麻先享V3接口
+----
+
+```php
+try {
+    // 实例化芝麻先享对象
+    $zhima = We::AliPayZhimaCreditPePromiseOrder($config);
+    // $zhima = new \AliPay\ZhimaCreditPePromiseOrder($config);
+    
+    // 创建芝麻先享订单
+    $result = $zhima->create([
+        'out_order_no' => time(), // 商户订单号
+        'product_code' => 'w1010100100000000000', // 产品码
+        'subject' => '测试商品', // 商品标题
+        'amount' => '0.01', // 订单总金额
+        'seller_id' => '2088102146222222', // 卖家支付宝用户ID
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+支付宝芝麻免押V3接口
+----
+
+```php
+try {
+    // 实例化芝麻免押对象
+    $zhima = We::AliPayZhimaCreditEpSceneAgreement($config);
+    // $zhima = new \AliPay\ZhimaCreditEpSceneAgreement($config);
+    
+    // 创建芝麻免押订单
+    $result = $zhima->create([
+        'credit_order_no' => time(), // 信用订单号
+        'product_code' => 'w1010100100000000000', // 产品码
+        'subject' => '测试免押商品', // 商品标题
+        'amount' => '0.01', // 订单总金额
+        'seller_id' => '2088102146222222', // 卖家支付宝用户ID
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+微信支付分V3接口
+----
+
+```php
+try {
+    // 实例化微信支付分对象
+    $payscore = We::WePayV3PayScore($config);
+    // $payscore = new \WePayV3\PayScore($config);
+    
+    // 创建支付分订单
+    $result = $payscore->create([
+        'out_order_no' => time(), // 商户订单号
+        'service_id' => 'your_service_id', // 服务ID
+        'service_introduction' => '测试服务', // 服务介绍
+        'risk_amount' => 10000, // 风险金额，单位为分
+        'time_range' => [
+            'start_time' => date('Y-m-d H:i:s'),
+            'end_time' => date('Y-m-d H:i:s', strtotime('+1 hour')),
+        ],
+        'notify_url' => 'https://yourdomain.com/notify',
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+微信支付分停车服务V3接口
+----
+
+```php
+try {
+    // 实例化微信支付分停车服务对象
+    $parking = We::WePayV3Parking($config);
+    // $parking = new \WePayV3\Parking($config);
+    
+    // 创建停车入场
+    $result = $parking->create([
+        'out_parking_no' => time(), // 商户停车入场号
+        'plate_number' => '粤B12345', // 车牌号
+        'plate_color' => 'BLUE', // 车牌颜色
+        'start_time' => date('Y-m-d H:i:s'), // 入场时间
+        'parking_name' => '测试停车场', // 停车场名称
+        'free_duration' => 30, // 免费时长，单位分钟
+        'notify_url' => 'https://yourdomain.com/notify',
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+微信服务商商户开户意愿确认接口
+----
+
+```php
+try {
+    // 实例化微信服务商商户开户意愿确认对象
+    $subject = We::WePayPartnerSubject($config);
+    // $subject = new \WePayPartner\Subject($config);
+    
+    // 提交商户开户意愿申请单
+    $result = $subject->apply([
+        'business_code' => 'business_' . time(), // 业务申请编号
+        'contact_info' => [
+            'contact_type' => 'LEGAL_PERSON', // 联系人类型
+            'contact_name' => '张三', // 联系人姓名
+            'contact_id_card_number' => '11010119900307XXXX', // 联系人身份证号码
+            'mobile' => '13800138000', // 联系人手机号
+            'email' => 'zhangsan@example.com' // 联系人邮箱
+        ],
+        'subject_info' => [
+            'subject_type' => 'SUBJECT_TYPE_INDIVIDUAL', // 主体类型
+            'business_licence_info' => [
+                'licence_number' => '9144030076543210XX', // 营业执照编号
+                'merchant_name' => '深圳市某某科技有限公司', // 商户名称
+                'company_address' => '深圳市南山区某某街道某某号', // 公司地址
+                'legal_person' => '张三' // 法人姓名
+            ]
+        ],
+        'notify_url' => 'https://yourdomain.com/notify', // 通知地址
+    ]);
+    
+    var_export($result);
+    
+    // 撤销商户开户意愿申请单（通过申请单号）
+    $subject->cancelApplyment(['applyment_id' => $result['applyment_id']]);
+    
+    // 或者通过业务申请编号撤销
+    // $subject->cancelApplyment(['business_code' => 'your_business_code']);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+微信服务商商户平台处置通知接口
+----
+
+```php
+try {
+    // 实例化微信服务商商户平台处置通知对象
+    $violation = We::WePayPartnerViolation($config);
+    // $violation = new \WePayPartner\Violation($config);
+    
+    // 创建商户违规通知回调地址
+    $result = $violation->createCallback([
+        'notify_url' => 'https://yourdomain.com/violation-notify' // 回调地址
+    ]);
+    
+    var_export($result);
+    
+    // 查询商户违规通知回调地址
+    $violation->getCallback();
+    
+    // 更新商户违规通知回调地址
+    $violation->updateCallback([
+        'notify_url' => 'https://yourdomain.com/violation-notify-update'
+    ]);
+    
+    // 查询商户违规记录
+    $violation->getViolations('sub_mchid', [
+        'limit' => 10,
+        'offset' => 0
+    ]);
+    
+    // 删除商户违规通知回调地址
+    $violation->deleteCallback();
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+微信服务商消费者投诉接口
+----
+
+```php
+try {
+    // 实例化微信服务商消费者投诉对象
+    $complaint = \We::WePayPartnerComplaint($config);
+    // $complaint = new \WePayPartner\Complaint($config);
+    
+    // 查询投诉单列表
+    $complaint->list([
+        'limit' => 5,
+        'offset' => 0,
+        'begin_date' => '2023-01-01',
+        'end_date' => '2023-01-31'
+    ]);
+    
+    // 创建投诉通知回调地址
+    $complaint->createCallback([
+        'url' => 'https://yourdomain.com/complaint-notify'
+    ]);
+    
+    // 查询投诉通知回调地址
+    $complaint->getCallback();
+    
+    // 更新投诉通知回调地址
+    $complaint->updateCallback([
+        'url' => 'https://yourdomain.com/complaint-notify-update'
+    ]);
+    
+    // 删除投诉通知回调地址
+    $complaint->deleteCallback();
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+微信服务商下载账单接口
+----
+
+```php
+try {
+    // 实例化微信服务商下载账单对象
+    $bill = \We::WePayPartnerBill($config);
+    // $bill = new \WePayPartner\Bill($config);
+    
+    // 申请交易账单
+    $tradeBill = $bill->tradeBill('2023-01-01', [
+        'sub_mchid' => '1600000000',  // 可选，指定子商户号
+        'bill_type' => 'ALL',         // 可选，账单类型 ALL|SUCCESS|REFUND
+        'tar_type' => 'GZIP'          // 可选，压缩类型 GZIP
+    ]);
+    
+    // 申请资金账单
+    $fundFlowBill = $bill->fundFlowBill('2023-01-01', [
+        'account_type' => 'BASIC',    // 可选，资金账户类型 BASIC|OPERATION|FEES
+        'tar_type' => 'GZIP'          // 可选，压缩类型 GZIP
+    ]);
+    
+    // 下载账单文件（如果获取到了下载链接）
+    if (isset($tradeBill['download_url'])) {
+        $bill->download($tradeBill['download_url'], './trade_bill.csv', [
+            'tar_type' => 'GZIP'  // 如果是压缩文件需要指定
+        ]);
+    }
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+## 版权说明
+
+**Payment** 遵循 **MIT** 开源协议发布，并免费提供使用。 

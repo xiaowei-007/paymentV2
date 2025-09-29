@@ -1,12 +1,12 @@
 {
+  "name": "xiaowei007/payment-v2",
+  "description": "微信、支付宝支付php SDK",
   "type": "library",
-  "name": "xiaowei/payment",
-  "description": "WeChat and Alipay Payment SDK",
   "license": "MIT",
   "authors": [
     {
       "name": "小韦",
-      "email": "302929314@qq.com"
+      "email": "1011072151@qq.com"
     }
   ],
   "keywords": [

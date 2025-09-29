@@ -1,0 +1,6 @@
+/vendor/
+.qoder/*
+PROJECT_RULES.md
+.qoder/*
+readme_copy.md
+composer_copy.json

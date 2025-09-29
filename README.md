@@ -78,6 +78,9 @@
 | Parking.php       | WePayPartner\Parking | 微信服务商支付分停车服务 | 微信服务商 | \We::WePayPartnerParking() |
 | Transfers.php     | WePayPartner\Transfers | 微信服务商转账到零钱 | 微信服务商 | \We::WePayPartnerTransfers() |
 | PayScore.php      | WePayPartner\PayScore | 微信服务商支付分    | 微信服务商 | \We::WePayPartnerPayScore()  |
+| Subject.php       | WePayPartner\Subject  | 微信服务商商户开户意愿确认 | 微信服务商 | \We::WePayPartnerSubject()   |
+| Violation.php     | WePayPartner\Violation| 微信服务商商户平台处置通知 | 微信服务商 | \We::WePayPartnerViolation() |
+| Bill.php          | WePayPartner\Bill     | 微信服务商下载账单         | 微信服务商 | \We::WePayPartnerBill()      |
 
 安装使用
 ----
@@ -497,6 +500,168 @@ try {
     ]);
     
     var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+微信服务商商户开户意愿确认接口
+----
+
+```php
+try {
+    // 实例化微信服务商商户开户意愿确认对象
+    $subject = We::WePayPartnerSubject($config);
+    // $subject = new \WePayPartner\Subject($config);
+    
+    // 提交商户开户意愿申请单
+    $result = $subject->apply([
+        'business_code' => 'business_' . time(), // 业务申请编号
+        'contact_info' => [
+            'contact_type' => 'LEGAL_PERSON', // 联系人类型
+            'contact_name' => '张三', // 联系人姓名
+            'contact_id_card_number' => '11010119900307XXXX', // 联系人身份证号码
+            'mobile' => '13800138000', // 联系人手机号
+            'email' => 'zhangsan@example.com' // 联系人邮箱
+        ],
+        'subject_info' => [
+            'subject_type' => 'SUBJECT_TYPE_INDIVIDUAL', // 主体类型
+            'business_licence_info' => [
+                'licence_number' => '9144030076543210XX', // 营业执照编号
+                'merchant_name' => '深圳市某某科技有限公司', // 商户名称
+                'company_address' => '深圳市南山区某某街道某某号', // 公司地址
+                'legal_person' => '张三' // 法人姓名
+            ]
+        ],
+        'notify_url' => 'https://yourdomain.com/notify', // 通知地址
+    ]);
+    
+    var_export($result);
+    
+    // 撤销商户开户意愿申请单（通过申请单号）
+    $subject->cancelApplyment(['applyment_id' => $result['applyment_id']]);
+    
+    // 或者通过业务申请编号撤销
+    // $subject->cancelApplyment(['business_code' => 'your_business_code']);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+微信服务商商户平台处置通知接口
+----
+
+```php
+try {
+    // 实例化微信服务商商户平台处置通知对象
+    $violation = We::WePayPartnerViolation($config);
+    // $violation = new \WePayPartner\Violation($config);
+    
+    // 创建商户违规通知回调地址
+    $result = $violation->createCallback([
+        'notify_url' => 'https://yourdomain.com/violation-notify' // 回调地址
+    ]);
+    
+    var_export($result);
+    
+    // 查询商户违规通知回调地址
+    $violation->getCallback();
+    
+    // 更新商户违规通知回调地址
+    $violation->updateCallback([
+        'notify_url' => 'https://yourdomain.com/violation-notify-update'
+    ]);
+    
+    // 查询商户违规记录
+    $violation->getViolations('sub_mchid', [
+        'limit' => 10,
+        'offset' => 0
+    ]);
+    
+    // 删除商户违规通知回调地址
+    $violation->deleteCallback();
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+微信服务商消费者投诉接口
+----
+
+```php
+try {
+    // 实例化微信服务商消费者投诉对象
+    $complaint = \We::WePayPartnerComplaint($config);
+    // $complaint = new \WePayPartner\Complaint($config);
+    
+    // 查询投诉单列表
+    $complaint->list([
+        'limit' => 5,
+        'offset' => 0,
+        'begin_date' => '2023-01-01',
+        'end_date' => '2023-01-31'
+    ]);
+    
+    // 创建投诉通知回调地址
+    $complaint->createCallback([
+        'url' => 'https://yourdomain.com/complaint-notify'
+    ]);
+    
+    // 查询投诉通知回调地址
+    $complaint->getCallback();
+    
+    // 更新投诉通知回调地址
+    $complaint->updateCallback([
+        'url' => 'https://yourdomain.com/complaint-notify-update'
+    ]);
+    
+    // 删除投诉通知回调地址
+    $complaint->deleteCallback();
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+微信服务商下载账单接口
+----
+
+```php
+try {
+    // 实例化微信服务商下载账单对象
+    $bill = \We::WePayPartnerBill($config);
+    // $bill = new \WePayPartner\Bill($config);
+    
+    // 申请交易账单
+    $tradeBill = $bill->tradeBill('2023-01-01', [
+        'sub_mchid' => '1600000000',  // 可选，指定子商户号
+        'bill_type' => 'ALL',         // 可选，账单类型 ALL|SUCCESS|REFUND
+        'tar_type' => 'GZIP'          // 可选，压缩类型 GZIP
+    ]);
+    
+    // 申请资金账单
+    $fundFlowBill = $bill->fundFlowBill('2023-01-01', [
+        'account_type' => 'BASIC',    // 可选，资金账户类型 BASIC|OPERATION|FEES
+        'tar_type' => 'GZIP'          // 可选，压缩类型 GZIP
+    ]);
+    
+    // 下载账单文件（如果获取到了下载链接）
+    if (isset($tradeBill['download_url'])) {
+        $bill->download($tradeBill['download_url'], './trade_bill.csv', [
+            'tar_type' => 'GZIP'  // 如果是压缩文件需要指定
+        ]);
+    }
     
 } catch (Exception $e) {
     // 异常处理

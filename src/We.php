@@ -87,6 +87,10 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WePayPartner\Parking WePayPartnerParking($options = []) static 微信服务商支付分停车服务
  * @method \WePayPartner\Transfers WePayPartnerTransfers($options = []) static 微信服务商转账到零钱
  * @method \WePayPartner\PayScore WePayPartnerPayScore($options = []) static 微信服务商支付分
+ * @method \WePayPartner\Subject WePayPartnerSubject($options = []) static 微信服务商商户开户意愿确认
+ * @method \WePayPartner\Violation WePayPartnerViolation($options = []) static 微信服务商商户平台处置通知
+ * @method \WePayPartner\Complaint WePayPartnerComplaint($options = []) static 微信服务商消费者投诉
+ * @method \WePayPartner\Bill WePayPartnerBill($options = []) static 微信服务商下载账单
  */
 class We
 {

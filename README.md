@@ -60,6 +60,11 @@
 | Refund.php        | WePay\Refund        | 微信商户退款       | 微信支付  | \We::WePayRefund()        |
 | Transfers.php     | WePay\Transfers     | 微信商户打款到零钱    | 微信支付  | \We::WePayTransfers()     |
 | TransfersBank.php | WePay\TransfersBank | 微信商户打款到银行卡   | 微信支付  | \We::WePayTransfersBank() |
+| Order.php         | WePayV3\Order       | 微信商户V3订单支付    | 微信支付V3 | \We::WePayV3Order()      |
+| Refund.php        | WePayV3\Refund      | 微信商户V3退款       | 微信支付V3 | \We::WePayV3Refund()     |
+| ProfitSharing.php | WePayV3\ProfitSharing | 微信商户V3分账      | 微信支付V3 | \We::WePayV3ProfitSharing() |
+| PayScore.php      | WePayV3\PayScore    | 微信支付分          | 微信支付V3 | \We::WePayV3PayScore()   |
+| Parking.php       | WePayV3\Parking     | 微信支付分停车服务     | 微信支付V3 | \We::WePayV3Parking()    |
 | Crypt.php         | WeMini\Crypt        | 微信小程序数据加密处理  | 微信小程序 | \We::WeMiniCrypt()        |
 | Plugs.php         | WeMini\Plugs        | 微信小程序插件管理    | 微信小程序 | \We::WeMiniPlugs()        |
 | Poi.php           | WeMini\Poi          | 微信小程序地址管理    | 微信小程序 | \We::WeMiniPoi()          |
@@ -429,6 +434,66 @@ try {
         'subject' => '测试免押商品', // 商品标题
         'amount' => '0.01', // 订单总金额
         'seller_id' => '2088102146222222', // 卖家支付宝用户ID
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
+微信支付分V3接口
+----
+
+```php
+try {
+    // 实例化微信支付分对象
+    $payscore = We::WePayV3PayScore($config);
+    // $payscore = new \WePayV3\PayScore($config);
+    
+    // 创建支付分订单
+    $result = $payscore->create([
+        'out_order_no' => time(), // 商户订单号
+        'service_id' => 'your_service_id', // 服务ID
+        'service_introduction' => '测试服务', // 服务介绍
+        'risk_amount' => 10000, // 风险金额，单位为分
+        'time_range' => [
+            'start_time' => date('Y-m-d H:i:s'),
+            'end_time' => date('Y-m-d H:i:s', strtotime('+1 hour')),
+        ],
+        'notify_url' => 'https://yourdomain.com/notify',
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+微信支付分停车服务V3接口
+----
+
+```php
+try {
+    // 实例化微信支付分停车服务对象
+    $parking = We::WePayV3Parking($config);
+    // $parking = new \WePayV3\Parking($config);
+    
+    // 创建停车入场
+    $result = $parking->create([
+        'out_parking_no' => time(), // 商户停车入场号
+        'plate_number' => '粤B12345', // 车牌号
+        'plate_color' => 'BLUE', // 车牌颜色
+        'start_time' => date('Y-m-d H:i:s'), // 入场时间
+        'parking_name' => '测试停车场', // 停车场名称
+        'free_duration' => 30, // 免费时长，单位分钟
+        'notify_url' => 'https://yourdomain.com/notify',
     ]);
     
     var_export($result);

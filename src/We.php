@@ -72,6 +72,13 @@ use WeChat\Exceptions\InvalidInstanceException;
  * @method \WePay\TransfersBank WePayTransfersBank($options = []) static 微信商户打款到银行卡
  * @method \WePay\ProfitSharing WePayProfitSharing($options = []) static 微信分账
  *
+ * ----- WePayV3 -----
+ * @method \WePayV3\Order WePayV3Order($options = []) static 微信商户V3订单支付
+ * @method \WePayV3\Refund WePayV3Refund($options = []) static 微信商户V3退款
+ * @method \WePayV3\ProfitSharing WePayV3ProfitSharing($options = []) static 微信商户V3分账
+ * @method \WePayV3\PayScore WePayV3PayScore($options = []) static 微信支付分
+ * @method \WePayV3\Parking WePayV3Parking($options = []) static 微信支付分停车服务
+ *
  * ----- WePayPartner -----
  * @method \WePayPartner\Order WePayPartnerOrder($options = []) static 微信服务商订单支付
  * @method \WePayPartner\Refund WePayPartnerRefund($options = []) static 微信服务商退款

@@ -17,7 +17,7 @@
     "WeChatDeveloper"
   ],
   "require": {
-    "php": ">=5.4",
+    "php": ">=7.0",
     "ext-xml": "*",
     "ext-json": "*",
     "ext-curl": "*",
@@ -39,6 +39,7 @@
       "WeChat\\": "WeChat",
       "WeMini\\": "WeMini",
       "AliPay\\": "AliPay",
+      "WePayPartner\\": "WePayPartner",
       "WePayV3\\": "WePayV3"
     }
   }

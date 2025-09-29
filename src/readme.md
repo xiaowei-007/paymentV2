@@ -10,15 +10,17 @@
 * 微信小程序，服务端接口支持
 * 微信认证服务号，服务端接口支持
 * 微信支付（账单、卡券、红包、退款、转账、App支付、JSAPI支付、Web支付、扫码支付等）
+* 微信服务商支付（JSAPI、App、H5、Native、小程序支付、退款、转账等）
 * 支付宝支付（账单、转账、App支付、刷卡支付、扫码支付、Web支付、Wap支付等）
 
 基于官方接口封装，在做微信开发前，必需先阅读微信官方文档。
 
 * 微信官方文档：https://mp.weixin.qq.com/wiki
 * 商户支付文档：https://pay.weixin.qq.com/wiki/doc/api/index.html
+* 服务商支付文档：https://pay.weixin.qq.com/doc/v3/partner/4012069852
 
 
-* Gitee 仓库地址：https://github.com/xiaowei-007/paymentV2.git
+* Github 仓库地址：https://github.com/xiaowei-007/paymentV2.git
 
 文件说明（后续会根据官方文档增加文件）
 ----
@@ -32,6 +34,8 @@
 | Transfer.php      | AliPay\Transfer     | 支付宝转账        | 支付宝支付 | \We::AliPayTransfer()     |
 | Wap.php           | AliPay\Wap          | 支付宝Wap支付     | 支付宝支付 | \We::AliPayWap()          |
 | Web.php           | AliPay\Web          | 支付宝Web支付     | 支付宝支付 | \We::AliPayWeb()          |
+| ZhimaCreditPePromiseOrder.php | AliPay\ZhimaCreditPePromiseOrder | 支付宝芝麻先享V3接口 | 支付宝支付 | \We::AliPayZhimaCreditPePromiseOrder() |
+| ZhimaCreditEpSceneAgreement.php | AliPay\ZhimaCreditEpSceneAgreement | 支付宝芝麻免押V3接口 | 支付宝支付 | \We::AliPayZhimaCreditEpSceneAgreement() |
 | Card.php          | WeChat\Card         | 微信卡券接口支持     | 认证服务号 | \We::WeChatCard()         |
 | Custom.php        | WeChat\Custom       | 微信客服消息接口支持   | 认证服务号 | \We::WeChatCustom()       |
 | Media.php         | WeChat\Media        | 微信媒体素材接口支持   | 认证服务号 | \We::WeChatMedia()        |
@@ -62,6 +66,13 @@
 | Qrcode.php        | WeMini\Qrcode       | 微信小程序二维码管理   | 微信小程序 | \We::WeMiniCrypt()        |
 | Template.php      | WeMini\Template     | 微信小程序模板消息支持  | 微信小程序 | \We::WeMiniTemplate()     |
 | Total.php         | WeMini\Total        | 微信小程序数据接口    | 微信小程序 | \We::WeMiniTotal()        |
+| Order.php         | WePayPartner\Order  | 微信服务商订单支付    | 微信服务商 | \We::WePayPartnerOrder()  |
+| Refund.php        | WePayPartner\Refund | 微信服务商退款      | 微信服务商 | \We::WePayPartnerRefund() |
+| ProfitSharing.php | WePayPartner\ProfitSharing | 微信服务商分账 | 微信服务商 | \We::WePayPartnerProfitSharing() |
+| Ecommerce.php     | WePayPartner\Ecommerce | 微信服务商特约商户进件 | 微信服务商 | \We::WePayPartnerEcommerce() |
+| Parking.php       | WePayPartner\Parking | 微信服务商支付分停车服务 | 微信服务商 | \We::WePayPartnerParking() |
+| Transfers.php     | WePayPartner\Transfers | 微信服务商转账到零钱 | 微信服务商 | \We::WePayPartnerTransfers() |
+| PayScore.php      | WePayPartner\PayScore | 微信服务商支付分    | 微信服务商 | \We::WePayPartnerPayScore()  |
 
 安装使用
 ----
@@ -138,6 +149,50 @@ return [
 ];
 ```
 
+2.2 微信服务商支付参数
+
+```php
+return [
+    // 服务商应用ID
+    'sp_appid' => 'wx3760xxxxxxxxxxxx',
+    
+    // 服务商户号
+    'sp_mchid' => '15293xxxxxx',
+    
+    // 子商户应用ID（可选）
+    'appid' => 'wx3760xxxxxxxxxxxx',
+    
+    // 子商户号（可选）
+    'mch_id' => '15293xxxxxx',
+    
+    // 微信商户 V3 接口密钥（必填）
+    'mch_v3_key' => '98b7fxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 商户证书序列号（可选）：用于请求签名
+    'cert_serial' => '49055D67B2XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+    
+    // 微信商户证书公钥（必填）：可填写证书内容或文件路径，仅用于提取序列号
+    'cert_public' => $certPublic,
+    
+    // 微信商户证书私钥（必填）：可填写证书内容或文件路径，用于请求数据签名
+    'cert_private' => $certPrivate,
+
+    // 自定义证书包：支持平台证书或支付公钥（可填写文件路径或证书内容）
+    'cert_package' => [
+        'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx' => $certPayment
+    ],
+
+    // 微信平台证书或支付证书序列号（可选）
+    // 'mp_cert_serial' => 'PUB_KEY_ID_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+
+    // 微信平台证书或支付证书内容（可选）
+    // 'mp_cert_content' => $certPayment,
+
+    // 运行时文件缓存路径（可选）
+    'cache_path' => ''
+];
+```
+
 3.1 实例指定接口
 
 ```php
@@ -188,6 +243,47 @@ try {
     $options = $wechat->createParamsForJsApi($result['prepay_id']);
     
     // @todo 把 $options 传到前端用js发起支付就可以了
+    
+} catch (Exception $e) {
+
+    // 出错啦，处理下吧
+    echo $e->getMessage() . PHP_EOL;
+    
+}
+```
+
+微信服务商支付
+---
+
+```php
+  // 创建接口实例
+  $wechat = \We::WePayPartnerOrder($config);
+  // $wechat = new \WePayPartner\Order($config);
+  
+  // 组装参数，可以参考官方商户文档
+  $options = [
+      'sp_appid' => $config['sp_appid'],
+      'sp_mchid' => $config['sp_mchid'],
+      'sub_appid' => $config['appid'],
+      'sub_mchid' => $config['mch_id'],
+      'description' => '测试商品',
+      'out_trade_no' => time(),
+      'notify_url' => 'http://a.com/text.html',
+      'amount' => [
+          'total' => 1,
+          'currency' => 'CNY'
+      ],
+      'payer' => [
+          'sp_openid' => 'o38gpszoJoC9oJYz3UHHf6bEp0Lo'
+      ]
+  ];
+    
+try {
+
+    // 生成预支付码
+    $result = $wechat->create(\WePayPartner\Order::WXPAY_JSAPI, $options);
+    
+    // @todo 把 $result 传到前端用js发起支付就可以了
     
 } catch (Exception $e) {
 
@@ -291,7 +387,60 @@ try {
 
 * 更多功能请阅读测试代码或SDK封装源码
 
+支付宝芝麻先享V3接口
+----
+
+```php
+try {
+    // 实例化芝麻先享对象
+    $zhima = We::AliPayZhimaCreditPePromiseOrder($config);
+    // $zhima = new \AliPay\ZhimaCreditPePromiseOrder($config);
+    
+    // 创建芝麻先享订单
+    $result = $zhima->create([
+        'out_order_no' => time(), // 商户订单号
+        'product_code' => 'w1010100100000000000', // 产品码
+        'subject' => '测试商品', // 商品标题
+        'amount' => '0.01', // 订单总金额
+        'seller_id' => '2088102146222222', // 卖家支付宝用户ID
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+支付宝芝麻免押V3接口
+----
+
+```php
+try {
+    // 实例化芝麻免押对象
+    $zhima = We::AliPayZhimaCreditEpSceneAgreement($config);
+    // $zhima = new \AliPay\ZhimaCreditEpSceneAgreement($config);
+    
+    // 创建芝麻免押订单
+    $result = $zhima->create([
+        'credit_order_no' => time(), // 信用订单号
+        'product_code' => 'w1010100100000000000', // 产品码
+        'subject' => '测试免押商品', // 商品标题
+        'amount' => '0.01', // 订单总金额
+        'seller_id' => '2088102146222222', // 卖家支付宝用户ID
+    ]);
+    
+    var_export($result);
+    
+} catch (Exception $e) {
+    // 异常处理
+    echo $e->getMessage();
+}
+```
+
+* 更多功能请阅读测试代码或SDK封装源码
+
 ## 版权说明
 
 **Payment** 遵循 **MIT** 开源协议发布，并免费提供使用。
-

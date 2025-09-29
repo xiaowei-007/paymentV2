@@ -20,7 +20,7 @@
 * 服务商支付文档：https://pay.weixin.qq.com/doc/v3/partner/4012069852
 
 
-* Gitee 仓库地址：https://github.com/xiaowei-007/paymentV2.git
+* Github 仓库地址：https://github.com/xiaowei-007/paymentV2.git
 
 文件说明（后续会根据官方文档增加文件）
 ----

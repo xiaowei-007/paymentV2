@@ -3,7 +3,6 @@
 namespace WePayV3;
 
 use WeChat\Contracts\Tools;
-use WeChat\Exceptions\InvalidResponseException;
 use WePayV3\Contracts\BasicWePay;
 use WePayV3\Contracts\DecryptAes;
 
@@ -36,12 +35,13 @@ class PayScore extends BasicWePay
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/doc/v3/merchant/4012587050
      */
-    public function query($outOrderNo, $serviceId)
+    public function query($outOrderNo, $serviceId,  $appid = '')
     {
         $pathinfo = "/v3/payscore/serviceorder";
         $params = [
             'service_id' => $serviceId,
-            'out_order_no' => $outOrderNo
+            'out_order_no' => $outOrderNo,
+            'appid' => $appid !== '' ? $appid : $this->config['appid']
         ];
         return $this->doRequest('GET', "{$pathinfo}?" . http_build_query($params), '', true);
     }
@@ -55,12 +55,12 @@ class PayScore extends BasicWePay
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/doc/v3/merchant/4012587050
      */
-    public function cancel($outOrderNo, $serviceId, $reason)
+    public function cancel($outOrderNo, $serviceId, $reason, $appid = '')
     {
-        $path = '/v3/payscore/serviceorder/cancel';
+        $path = '/v3/payscore/serviceorder/' . $outOrderNo . '/cancel';
         $data = [
+            'appid' => $appid !== '' ? $appid : $this->config['appid'],
             'service_id' => $serviceId,
-            'out_order_no' => $outOrderNo,
             'reason' => $reason
         ];
         return $this->doRequest('POST', $path, json_encode($data, JSON_UNESCAPED_UNICODE), true);
@@ -92,11 +92,11 @@ class PayScore extends BasicWePay
      * @throws \WeChat\Exceptions\InvalidResponseException
      * @document https://pay.weixin.qq.com/doc/v3/merchant/4012587050
      */
-    public function complete($outOrderNo, $serviceId, array $data)
+    public function complete($outOrderNo, $serviceId, array $data, $appid = '')
     {
-        $path = '/v3/payscore/serviceorder/complete';
+        $path = '/v3/payscore/serviceorder/' . $outOrderNo . '/complete';
         $data['service_id'] = $serviceId;
-        $data['out_order_no'] = $outOrderNo;
+        $data['appid'] = $appid !== '' ? $appid : $this->config['appid'];
         return $this->doRequest('POST', $path, json_encode($data, JSON_UNESCAPED_UNICODE), true);
     }
 

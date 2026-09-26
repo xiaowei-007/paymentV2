@@ -137,6 +137,20 @@ abstract class BasicAliPay
         $this->options->set('method', 'alipay.trade.refund');
         return $this->getResult($options);
     }
+    /**
+     * 退款查询
+     * @param string $outTradeNo 商户订单号
+     * @param string $outRequestNo 退款请求号。 请求退款接口时，传入的退款请求号，如果在退款请求时未传入，则该值为创建交易时的商户订单号。
+     * @return array
+     * @throws \WeChat\Exceptions\InvalidResponseException
+     * @throws \WeChat\Exceptions\LocalCacheException
+     */
+    public function refundQuery($outTradeNo, $outRequestNo = '')
+    {
+        $outRequestNo = $outRequestNo ?: $outTradeNo;
+        $this->options->set('method', 'alipay.trade.fastpay.refund.query');
+        return $this->getResult(['out_trade_no' => $outTradeNo, 'out_request_no' => $outRequestNo]);
+    }
 
     /**
      * 关闭支付宝进行中的订单

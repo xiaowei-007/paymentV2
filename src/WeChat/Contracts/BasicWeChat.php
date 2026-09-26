@@ -89,9 +89,6 @@ class BasicWeChat
      */
     public function getAccessToken()
     {
-        if (!empty($this->access_token)) {
-            return $this->access_token;
-        }
         $cache = $this->config->get('appid') . '_access_token';
         $this->access_token = Tools::getCache($cache);
         if (!empty($this->access_token)) {
@@ -158,7 +155,11 @@ class BasicWeChat
             if (isset($this->currentMethod['method']) && empty($this->isTry)) {
                 if (in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
                     [$this->delAccessToken(), $this->isTry = true];
-                    return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+                    try {
+                        return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+                    } finally {
+                        $this->isTry = false;
+                    }
                 }
             }
             throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
@@ -184,7 +185,11 @@ class BasicWeChat
         } catch (InvalidResponseException $exception) {
             if (!$this->isTry && in_array($exception->getCode(), ['40014', '40001', '41001', '42001'])) {
                 [$this->delAccessToken(), $this->isTry = true];
-                return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+                try {
+                    return call_user_func_array([$this, $this->currentMethod['method']], $this->currentMethod['arguments']);
+                } finally {
+                    $this->isTry = false;
+                }
             }
             throw new InvalidResponseException($exception->getMessage(), $exception->getCode());
         }
@@ -202,7 +207,7 @@ class BasicWeChat
     protected function registerApi(&$url, $method, $arguments = [])
     {
         $this->currentMethod = ['method' => $method, 'arguments' => $arguments];
-        if (empty($this->access_token)) $this->access_token = $this->getAccessToken();
+        $this->access_token = $this->getAccessToken();
         return $url = str_replace('ACCESS_TOKEN', urlencode($this->access_token), $url);
     }
 
